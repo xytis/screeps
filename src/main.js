@@ -16,16 +16,13 @@ export function loop () {
     //scheduler.tick();
     //Colony.plan();
 
-    for(const id in Game.rooms) {
-        const room = Game.rooms[id];
-        let creeps = room.find(FIND_MY_CREEPS).map((id) => { return Game.creeps[id]; });
+    _.each(Game.rooms, (room) => {
+        const creeps = room.find(FIND_MY_CREEPS);
         //Here should go role rebalancing by room
         City.balance(room, creeps);
-    }
+    });
 
-    for (const id in Game.creeps) {
-        const creep = Game.creeps[id];
-        //Perform current tick
+    _.each(Game.creeps, (creep) => {
         const result = Roles.perform(creep);
-    }
+    });
 }

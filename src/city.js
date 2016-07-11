@@ -7,6 +7,7 @@ export class City {
         const sources = room.find(FIND_SOURCES);
         _.each(sources, (s) => {
             console.log("Source:", s);
+
         });
     }
 
