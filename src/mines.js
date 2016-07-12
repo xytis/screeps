@@ -1,17 +1,31 @@
+/*
+  The way I envisioned this to work in main or city is:
+
+  const memory = room.memory;
+  if(!memory.mines_are_set){
+    plan_mines(room);
+  }
+
+  //something like that will be saved in memory after the exsecution
+  memory.mines = [
+    {id: blablablabla, max_allowed: 3},
+    .........
+  ]
+  memory.mines_are_set = true
+*/
 
 function plan_mines(room){
-// - vietos arčiau spawn turi būt prioretizuojamos
-// - atsižvelgt į pelkes (bet gal įdėjus A* vietoj range pasikeis)
-// - padaryt pathfind kad įskaičiuotų užimtas vietas
+  const memory = room.memory;
   var spawn = Game.spawns[Object.keys(Game.spawns)[0]];
-  spawn.memory.mines = []
+  memory.mines = memory.mines || [];
   console.log(spawn.pos)
 
   var sources = room.find(FIND_SOURCES);
   for(var kk = 0; kk < sources.length; kk++){
     var source = sources[kk];
-    var area = room.lookAtArea(source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
+    memory.mines.push({id: source.id, max_allowed})
 
+    var area = room.lookAtArea(source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
     var empty_squares = area.filter(function(ob){
       return ob.type == 'terrain' && ob.terrain != 'wall';
     })
@@ -20,7 +34,7 @@ function plan_mines(room){
       return ob.type == 'terrain' && ob.terrain != 'wall';
     })
     var max_allowed = empty_squares.length < 3 ? empty_squares.length : 3;
-    spawn.memory.mines.push({id: source.id, max_allowed})
+
 
     //try to find place for collector for now just place holder
     var target = candidates_for_container[0];
@@ -34,6 +48,7 @@ function plan_mines(room){
 
     room.createConstructionSite(target.x, target.y, STRUCTURE_CONTAINER);
   }
+  memory.mines_are_set = true;
 }
 
 function fitness_for_container(candidate_pos, mining_positions, max_allowed, spawn_pos){
@@ -74,3 +89,7 @@ function findPath(start_pos, end_pos, mining_pos){
    );
   return PFret.path.length;
 }
+
+module.exports = {
+    plan_mines,
+};
