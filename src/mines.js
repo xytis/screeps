@@ -1,7 +1,11 @@
 
 function plan_mines(room){
+// - vietos arčiau spawn turi būt prioretizuojamos
+// - atsižvelgt į pelkes (bet gal įdėjus A* vietoj range pasikeis)
+// - padaryt pathfind kad įskaičiuotų užimtas vietas
   var spawn = Game.spawns[Object.keys(Game.spawns)[0]];
   spawn.memory.mines = []
+  console.log(spawn.pos)
 
   var sources = room.find(FIND_SOURCES);
   for(var kk = 0; kk < sources.length; kk++){
@@ -15,15 +19,16 @@ function plan_mines(room){
     var candidates_for_container = larger_area.filter(function(ob){
       return ob.type == 'terrain' && ob.terrain != 'wall';
     })
-    spawn.memory.mines.push({id: source.id, max_allowed: empty_squares.length < 3 ? empty_squares.length : 3})
+    var max_allowed = empty_squares.length < 3 ? empty_squares.length : 3;
+    spawn.memory.mines.push({id: source.id, max_allowed})
 
     //try to find place for collector for now just place holder
     var target = candidates_for_container[0];
-    var val = fitness_for_container(candidates_for_container[0], empty_squares)
+    var val = fitness_for_container(candidates_for_container[0], empty_squares, max_allowed, spawn.pos)
     for(var ii = 0; ii<candidates_for_container.length; ii++){
-      if(fitness_for_container(candidates_for_container[ii], empty_squares) < val){
+      if(fitness_for_container(candidates_for_container[ii], empty_squares, max_allowed, spawn.pos) < val){
         target = candidates_for_container[ii];
-        val = fitness_for_container(candidates_for_container[ii], empty_squares)
+        val = fitness_for_container(candidates_for_container[ii], empty_squares, max_allowed, spawn.pos)
       }
     }
 
@@ -31,14 +36,41 @@ function plan_mines(room){
   }
 }
 
-function fitness_for_container(candidate_pos, mining_positions, max_allowed){
+function fitness_for_container(candidate_pos, mining_positions, max_allowed, spawn_pos){
   var val = [];
+  //calculate range to spawn cost
+  var sx = candidate_pos.x - spawn_pos.x;
+  var sy = candidate_pos.y - spawn_pos.y;
+  var spawn_cost = Math.sqrt(sx * sx + sy*sy)
+  // calculate active pos cost
   for(var ii = 0; ii<mining_positions.length; ii++){
-    //naive way of calculatign cost. TODO: use pathfinding instead
-    var dx = candidate_pos.x - mining_positions[ii].x;
-    var dy = candidate_pos.y - mining_positions[ii].y;
-    val.push(Math.sqrt(dx * dx + dy*dy))
+    val.push(findPath(Game.rooms[spawn_pos.roomName]
+                        .getPositionAt(candidate_pos.x,candidate_pos.y),
+                      Game.rooms[spawn_pos.roomName]
+                        .getPositionAt(mining_positions[ii].x,mining_positions[ii].y),
+                      mining_positions));
+
   }
-  var cost = val.sort().slice(0, max_allowed).reduce(function(a, b){return a+b}, 0)
-  return cost;
+  var cost = val.sort().slice(0, max_allowed).reduce(function(a, b){return a+b}, 0) //sum of max_allowed lowest values
+  return cost + spawn_cost/10;
+}
+
+function findPath(start_pos, end_pos, mining_pos){
+  //include possible positions fo other creeps in cost matrix
+  var PFret = PathFinder.search(start_pos,
+     {pos: end_pos, range: 1},
+     {
+       plainCost: 1,
+       swampCost: 1,
+       roomCallback: function(roomname){
+         //no checking if room exists
+         let costs = new PathFinder.CostMatrix;
+         mining_pos.forEach(function(location){
+           costs.set(location.x, location.y, 10);
+         })
+         return costs;
+       }
+     }
+   );
+  return PFret.path.length;
 }
