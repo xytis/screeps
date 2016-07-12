@@ -1,8 +1,6 @@
 
 const ROLES = {
-    'builder': require('./role.builder'),
-    'harvester': require('./role.harvester'),
-    'healer': require('./role.healer'),
+    'miner': require('./role.miner'),
 };
 
 export class Roles {
@@ -16,6 +14,7 @@ export class Roles {
             console.log("creep", creep.name, "role", creep.memory.role, "is not supported!");
             return ERR_INVALID_ARGS;
         }
+        console.log(role);
         role.run(creep);
     }
 }

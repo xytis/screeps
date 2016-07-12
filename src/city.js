@@ -2,6 +2,7 @@ export class City {
   static plan(room) {
     const memory = room.memory;
     memory.zones = memory.zones || {};
+    memory.zones_ttl = 300;
     //Scout the map for zones
 
     memory.zones.spawn = memory.zones.spawn || {
@@ -21,7 +22,6 @@ export class City {
 
     //Determine mine locations and slots
     _.each(room.find(FIND_SOURCES), (s) => {
-      console.log('found a source');
       const id = 'mine-' + s.id;
       const zone = memory.zones[id] = memory.zones[id] || {
         slots: {},
@@ -102,6 +102,7 @@ export class City {
           role: 'miner',
           target: s.id,
           container: container.id,
+          share_factor: max_slots,
         }
       }
 
@@ -111,7 +112,10 @@ export class City {
 
   static spawn(room, creeps) {
     //Find first creep that we could spawn
-
+    if (creeps.length < 2) {
+      let spawn = room.find(FIND_MY_SPAWNS)[0];
+      spawn.createCreep([WORK, CARRY, MOVE], undefined, { role: 'miner' });
+    }
   }
 
   static pick_occupation(room, creep) {
@@ -129,9 +133,11 @@ export class City {
 
   static balance(room, creeps) {
     const memory = room.memory;
-    //if (!memory.zones || memory.zones.outdated) {
-    City.plan(room)
-    //}
+    if (!memory.zones || memory.zones_ttl <= 0) {
+      City.plan(room)
+    } else {
+      memory.zones_ttl--;
+    }
     City.spawn(room, creeps);
 
     _.each(creeps, (creep) => {
