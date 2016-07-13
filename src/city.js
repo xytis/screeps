@@ -123,17 +123,39 @@ export class City {
     }
   }
 
+  static assign_to_zone(room, creep, zone_name){
+    var zone = room.memory.zones[zone_name];
+    // this method goes something like this:
+    var workers_in_zone = _.filter(Game.creeps, (creep) => creep.memory.zone_name == zone.name);
+    if(workers_in_zone.length >= zone.max_allowed){
+      creep.say("Zone " + zone.name + " is full");
+      return -1;
+    }else{
+      console.log(zone.name)
+      creep.say('Assigned to zone ' + zone.name);
+      creep.memory.zone_name = zone.name;
+      return 0;
+    }
+  }
+
   static pick_occupation(room, creep) {
     const memory = room.memory;
     const zones = Object.keys(memory.zones).sort((a,b) => { return memory.zones[a].priority > memory.zones[b].priority });
-    _.each(zones, (zone) => {
-      //Figure out what new creeps you want
-      //Add more creeps if that is required.
-      //Or even -- order a spawn from Spawns in this room
-
-      //creep.memory.zone = zone
-      //creep.memory.role = ???
-    });
+    for(var ii =0; ii < zones.length; ii++){
+      var res = City.assign_to_zone(room, creep, zones[ii])
+      if(res == 0){
+        return;
+      }
+    }
+    // I couldnt return from inside of each calback
+    // _.each(zones, (zone) => {
+    //   //Figure out what new creeps you want
+    //   //Add more creeps if that is required.
+    //   //Or even -- order a spawn from Spawns in this room
+    //
+    //   //creep.memory.zone = zone
+    //   //creep.memory.role = ???
+    // });
   }
 
   static balance(room, creeps) {
@@ -141,12 +163,14 @@ export class City {
     if (!memory.zones || memory.zones_ttl <= 0) {
       City.plan(room)
     } else {
-      memory.zones_ttl--;
+      // temporaly disabled re-planing.
+      // memory.zones_ttl--;
     }
+
     City.spawn(room, creeps);
 
     _.each(creeps, (creep) => {
-      if (!creep.memory.zone) {
+      if (!creep.memory.zone_name) {
         City.pick_occupation(room, creep);
       }
     });

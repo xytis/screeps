@@ -1,7 +1,7 @@
 import * as jobs from "./jobs";
 
 export function run(creep) {
-  const zone = creep.memory.zone;
+  const zone = creep.memory.zone_name;
   if (!creep.room.memory.zones[zone]) {
     creep.say("I am lost!");
     return;

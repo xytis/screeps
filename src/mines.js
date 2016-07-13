@@ -7,8 +7,8 @@
   }
 
   //something like that will be saved in memory after the exsecution
-  memory.mines = [
-    {target: blablablabla, max_allowed: 3},
+  memory.zones = [
+    {target: blablablabla, name: mine_AS12CD_1, max_allowed: 3},
     .........
   ]
   memory.mines_are_set = true
@@ -17,13 +17,13 @@
 function plan_mines(room){
   const memory = room.memory;
   var spawn = Game.spawns[Object.keys(Game.spawns)[0]];
-  memory.zones.mines = memory.zones.mines || [];
+  memory.zones = memory.zones || [];
   console.log(spawn.pos)
 
   var sources = room.find(FIND_SOURCES);
   for(var kk = 0; kk < sources.length; kk++){
     var source = sources[kk];
-    memory.zones.mines.push({target: source.id, max_allowed})
+
 
     var area = room.lookAtArea(source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
     var empty_squares = area.filter(function(ob){
@@ -34,7 +34,7 @@ function plan_mines(room){
       return ob.type == 'terrain' && ob.terrain != 'wall';
     })
     var max_allowed = empty_squares.length < 3 ? empty_squares.length : 3;
-
+    memory.zones['mine_' + room.name +'_' + kk] = {target: source.id, name: 'mine_' + room.name +'_' + kk, priority: 1, max_allowed}
 
     //try to find place for collector for now just place holder
     var target = candidates_for_container[0];
