@@ -7,6 +7,7 @@ import { Roles } from './roles';
 //const scheduler = new Scheduler();
 
 export function loop () {
+
     for(const id in Memory.creeps) {
         if (!Game.creeps[id]) {
             delete Memory.creeps[id];

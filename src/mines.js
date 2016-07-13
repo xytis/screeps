@@ -8,7 +8,7 @@
 
   //something like that will be saved in memory after the exsecution
   memory.mines = [
-    {id: blablablabla, max_allowed: 3},
+    {target: blablablabla, max_allowed: 3},
     .........
   ]
   memory.mines_are_set = true
@@ -17,13 +17,13 @@
 function plan_mines(room){
   const memory = room.memory;
   var spawn = Game.spawns[Object.keys(Game.spawns)[0]];
-  memory.mines = memory.mines || [];
+  memory.zones.mines = memory.zones.mines || [];
   console.log(spawn.pos)
 
   var sources = room.find(FIND_SOURCES);
   for(var kk = 0; kk < sources.length; kk++){
     var source = sources[kk];
-    memory.mines.push({id: source.id, max_allowed})
+    memory.zones.mines.push({target: source.id, max_allowed})
 
     var area = room.lookAtArea(source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
     var empty_squares = area.filter(function(ob){
