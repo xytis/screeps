@@ -18,7 +18,7 @@ function plan_mines(room){
   const memory = room.memory;
   var spawn = Game.spawns[Object.keys(Game.spawns)[0]];
   memory.zones = memory.zones || [];
-  console.log(spawn.pos)
+  console.log('Spawn position: ' + spawn.pos)
 
   var sources = room.find(FIND_SOURCES);
   for(var kk = 0; kk < sources.length; kk++){

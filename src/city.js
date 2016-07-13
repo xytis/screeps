@@ -117,7 +117,7 @@ export class City {
 
   static spawn(room, creeps) {
     //Find first creep that we could spawn
-    if (creeps.length < 2) {
+    if (creeps.length < 1) {
       let spawn = room.find(FIND_MY_SPAWNS)[0];
       spawn.createCreep([WORK, CARRY, MOVE], undefined, { role: 'miner' });
     }
@@ -131,8 +131,8 @@ export class City {
       creep.say("Zone " + zone.name + " is full");
       return -1;
     }else{
-      console.log(zone.name)
-      creep.say('Assigned to zone ' + zone.name);
+      console.log(creep + ' assigned to zone' + zone.name)
+      // creep.say('Assigned to zone ' + zone.name);
       creep.memory.zone_name = zone.name;
       return 0;
     }

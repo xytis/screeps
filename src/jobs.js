@@ -7,15 +7,16 @@ export function harvest(creep, task, tasks) {
     tasks.push({ job: "complain", message: "last job (" + task.job + ") dispatched to 'harvest' handler"});
     return tasks;
   }
-
-  const res = creep.harvest(task.target);
+  var source = Game.getObjectById(task.target);
+  const res = creep.harvest(source);
   if (res == OK) {
     if (creep.carry.energy < creep.carryCapacity - creep.getActiveBodyparts(WORK)*2) {
       tasks.push(task); //repeat until full.
     }
   } else if (res == ERR_NOT_IN_RANGE) {
+
     tasks.push(task); //resume after moving.
-    creep.moveTo(task.target);
+    creep.moveTo(source);
   } else {
     //do not resume if failure happened. Let others decide what I should do.
     tasks.push({ job: "complain", message: "last job (" + task.job + ") failed with " + res });

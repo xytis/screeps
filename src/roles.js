@@ -19,7 +19,7 @@ export class Roles {
             console.log("creep", creep.name, "role", creep.memory.role, "is not supported!");
             return ERR_INVALID_ARGS;
         }
-        console.log(role);
+        // console.log('role: ' + role);
         role.run(creep);
     }
 }
