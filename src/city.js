@@ -1,4 +1,4 @@
-import { plan_mines } from './mines'
+import { plan_mines } from './plan.mines'
 
 export class City {
   static plan(room) {

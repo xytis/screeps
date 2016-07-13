@@ -12,9 +12,6 @@ export function harvest(creep, task, tasks) {
   if (res == OK) {
     if (creep.carry.energy < creep.carryCapacity - creep.getActiveBodyparts(WORK)*2) {
       tasks.push(task); //repeat until full.
-    } else {
-      tasks.push(task); //resume after store.
-      tasks.push({ job: "store", resource: task.target.mineralType || RESOURCE_ENERGY });
     }
   } else if (res == ERR_NOT_IN_RANGE) {
     tasks.push(task); //resume after moving.
@@ -30,6 +27,7 @@ export function harvest(creep, task, tasks) {
 export function complain(creep, task, tasks) {
   task = task || { job: "complain", message: "I am feeling under the weather" };
   tasks = tasks || [];
+  console.log("COMPLAINT:", task.message);
   creep.say(task.message);
   return tasks;
 }
@@ -37,16 +35,6 @@ export function complain(creep, task, tasks) {
 export function store(creep, task, tasks) {
   task = task || { job: "store", resource: RESOURCE_ENERGY };
   tasks = tasks || [];
-  if (!task.target) {
-    //Figure out where to place the contents.
-    if (creep.memory.zone && creep.room.memory.zones[creep.memory.zone]) {
-      const zone = creep.room.memory.zones[creep.memory.zone];
-      if (zone.container) {
-        task.target = Game.getObjectById(zone.container);
-      }
-    }
-    //For other uses -- just drop it on the floor
-  }
   if (task.target) {
     const res = creep.transfer(task.target, task.resource, task.amount);
     if (res == ERR_NOT_IN_RANGE) {

@@ -9,11 +9,13 @@ export function run(creep) {
 
   const data = creep.room.memory.zones[zone];
   const source = Game.getObjectById(data.target);
+  const container = Game.getObjectById(data.container);
 
   const state = creep.memory.state || [{ job: "harvest", target: source }];
 
   if (state.length == 0) {
-    state.push({ job: "harvest", target: source})
+    state.push({ job: "store",    resource: source.mineralType || RESOURCE_ENERGY, target: container });
+    state.push({ job: "harvest",  target: source})
   }
 
   const task = state.pop();

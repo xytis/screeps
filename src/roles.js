@@ -1,3 +1,8 @@
+/**
+ * This file should perform jobs by role string stored in creep memory.
+ *
+ * Based on the string it should execute function from role.<id>.js file.
+ */
 
 const ROLES = {
     'miner': require('./role.miner'),
