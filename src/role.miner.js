@@ -10,7 +10,7 @@ export function run(creep) {
 
   const zone = creep.room.memory.zones[zone_name];
   const source = Game.getObjectById(zone.target);
-  const container = Game.getObjectById(zone.container);
+  const container = Game.getObjectById(zone.container_id);
 
   const state = creep.memory.state || [{ job: "harvest", target: zone.target }];
 

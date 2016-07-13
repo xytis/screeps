@@ -1,8 +1,9 @@
-import { plan_mines } from './plan.mines'
+import { plan_mines, post_plan_mines } from './plan.mines'
 
 export class City {
   static plan(room) {
     const memory = room.memory;
+    memory.post_planed = false;
     memory.zones = memory.zones || {};
     memory.zones_ttl = 300;
     //Scout the map for zones
@@ -25,6 +26,7 @@ export class City {
     //Determine mine locations and slots
 
     plan_mines(room);
+
 
     // _.each(room.find(FIND_SOURCES), (s) => {
     //   const id = 'mine-' + s.id;
@@ -115,6 +117,20 @@ export class City {
     // });
   }
 
+  static post_plan(room){
+    var zones = room.memory.zones;
+    Object.keys(zones).forEach(function(key){
+      switch (zones[key].type) {
+        case 'mine':
+          post_plan_mines(room, zones[key])
+          break;
+        default:
+          console.log('This zone has no post_plan method: ' + zones[key].type)
+      }
+    })
+    room.memory.post_planed = true;
+  }
+
   static spawn(room, creeps) {
     //Find first creep that we could spawn
     if (creeps.length < 1) {
@@ -163,6 +179,9 @@ export class City {
     if (!memory.zones || memory.zones_ttl <= 0) {
       City.plan(room)
     } else {
+      if(!room.memory.post_planed){
+        City.post_plan(room)
+      }
       // temporaly disabled re-planing.
       // memory.zones_ttl--;
     }

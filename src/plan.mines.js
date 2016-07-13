@@ -34,7 +34,7 @@ function plan_mines(room){
       return ob.type == 'terrain' && ob.terrain != 'wall';
     })
     var max_allowed = empty_squares.length < 3 ? empty_squares.length : 3;
-    memory.zones['mine_' + room.name +'_' + kk] = {target: source.id, name: 'mine_' + room.name +'_' + kk, priority: 1, max_allowed}
+
 
     //try to find place for collector for now just place holder
     var target = candidates_for_container[0];
@@ -47,8 +47,16 @@ function plan_mines(room){
     }
 
     room.createConstructionSite(target.x, target.y, STRUCTURE_CONTAINER);
+    // push new object into zones
+    var container_pos = room.getPositionAt(target.x, target.y)
+    memory.zones['mine_' + room.name +'_' + kk] = {type: 'mine', target: source.id, name: 'mine_' + room.name +'_' + kk, priority: 1, container_pos, max_allowed}
   }
   memory.mines_are_set = true;
+}
+
+function post_plan_mines(room, zone){
+  var found = room.lookForAt(LOOK_CONSTRUCTION_SITES, zone.container_pos.x, zone.container_pos.y)
+  zone['container_id'] = room.lookForAt(LOOK_CONSTRUCTION_SITES, zone.container_pos.x, zone.container_pos.y)[0].id;
 }
 
 function fitness_for_container(candidate_pos, mining_positions, max_allowed, spawn_pos){
@@ -92,4 +100,5 @@ function findPath(start_pos, end_pos, mining_pos){
 
 module.exports = {
     plan_mines,
+    post_plan_mines,
 };
