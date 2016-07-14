@@ -70,7 +70,7 @@ export class City {
 
   static pick_occupation(room, creep) {
     const memory = room.memory;
-    const zones = Object.keys(memory.zones).sort((a,b) => { return memory.zones[a].priority > memory.zones[b].priority });
+    const zones = Object.keys(memory.zones).sort((a,b) => { memory.zones[a].priority - memory.zones[b].priority });
     for(var ii =0; ii < zones.length; ii++){
       var res = City.assign_to_zone(room, creep, zones[ii])
       if(res == 0){
