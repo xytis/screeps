@@ -6,6 +6,7 @@ export class City {
     memory.post_planed = false;
     memory.zones = memory.zones || {};
     memory.zones_ttl = 300;
+    memory.colony_state = 'just_born';
     //Scout the map for zones
 
     memory.zones.spawn = memory.zones.spawn || {
@@ -26,95 +27,6 @@ export class City {
     //Determine mine locations and slots
 
     plan_mines(room);
-
-
-    // _.each(room.find(FIND_SOURCES), (s) => {
-    //   const id = 'mine-' + s.id;
-    //   const zone = memory.zones[id] = memory.zones[id] || {
-    //     slots: {},
-    //   };
-    //   const work_area = _.filter(
-    //     room.lookAtArea(s.pos.y-1, s.pos.x-1, s.pos.y+1, s.pos.x+1, true),
-    //     (e) => {
-    //       return e.type == LOOK_TERRAIN ||
-    //         e.type == LOOK_STRUCTURES ||
-    //         e.type == LOOK_CONSTRUCTION_SITES;
-    //     }
-    //   );
-    //   const empty_area = _.filter(work_area, (e) => {
-    //     return e.type == LOOK_TERRAIN && OBSTACLE_OBJECT_TYPES.indexOf(e.terrain) == -1;
-    //   });
-    //   const max_slots = empty_area.length < 3 ? empty_area.length : 3;
-    //   zone.priority = 10 + max_slots * 5; //Default -- 25 priority.
-    //
-    //   zone.slots = zone.slots || {};
-    //
-    //   //Check if the zone has a container or a construction site for it,
-    //   //or
-    //   //Find a place for a construction site
-    //   let container = null;
-    //   let best_fitness = 9999;
-    //   let best_pos = null;
-    //   const build_area = room.lookAtArea(s.pos.y-2, s.pos.x-2, s.pos.y+2, s.pos.x+2);
-    //   for (let i in build_area) {
-    //     for (let j in build_area[i]) {
-    //       if (i == s.pos.y-2 || i == s.pos.y+2 || j == s.pos.x-2 || j == s.pos.x+2) {
-    //         for (let k in build_area[i][j]) {
-    //           const e = build_area[i][j][k];
-    //           if (e.type == LOOK_CONSTRUCTION_SITES && e.constructionSite.structureType == STRUCTURE_CONTAINER) {
-    //             container = e.constructionSite;
-    //             break;
-    //           }
-    //           if (e.type == LOOK_STRUCTURES && e.structure.structureType == STRUCTURE_CONTAINER) {
-    //             container = e.structure;
-    //             break;
-    //           }
-    //         }
-    //         let fitness = 0;
-    //         for(let k in empty_area) {
-    //           const p = empty_area[k];
-    //           fitness += (j - p.x)*(j - p.x) + (i - p.y)*(i - p.y);
-    //         }
-    //         if (fitness < best_fitness) {
-    //           best_fitness = fitness;
-    //           best_pos = {x: Number(j), y: Number(i)};
-    //         }
-    //       }
-    //     }
-    //   }
-    //   if (!container) {
-    //     let res = room.createConstructionSite(best_pos.x, best_pos.y, STRUCTURE_CONTAINER);
-    //     if (OK == res) {
-    //       container = room.lookForAt(LOOK_CONSTRUCTION_SITES, best_pos.x, best_pos.y);
-    //     } else {
-    //       container = {
-    //         pos: best_pos,
-    //         id: null,
-    //         falure: res,
-    //       };
-    //     }
-    //   }
-    //   zone.container = container;
-    //
-    //   //Define builder slot if required:
-    //   if (container.progress >= 0) {
-    //     zone.slots.builder = {
-    //       role: 'builder',
-    //       target: container.id,
-    //     }
-    //   }
-    //   //Define remaining slots:
-    //   for (let i = 0; i < max_slots; i++) {
-    //     zone.slots['miner-' + (i+1)] = {
-    //       role: 'miner',
-    //       target: s.id,
-    //       container: container.id,
-    //       share_factor: max_slots,
-    //     }
-    //   }
-    //
-    //   console.log("Source:", s);
-    // });
   }
 
   static post_plan(room){
@@ -133,9 +45,11 @@ export class City {
 
   static spawn(room, creeps) {
     //Find first creep that we could spawn
-    if (creeps.length < 1) {
+    if (creeps.length < 6) {
       let spawn = room.find(FIND_MY_SPAWNS)[0];
-      spawn.createCreep([WORK, CARRY, MOVE], undefined, { role: 'miner' });
+      spawn.createCreep([WORK, CARRY, MOVE], undefined, { role: 'miner'});
+    }else{
+      memory.colony_state = 'young';
     }
   }
 

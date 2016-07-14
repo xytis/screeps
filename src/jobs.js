@@ -1,6 +1,6 @@
 //New definitions:
 export function harvest(creep, task, tasks) {
-  task = task || { job: "harvest", target: creep.room.find(FIND_SOURCES_ACTIVE)[0] };
+  task = task || { job: "harvest", target: creep.room.find(FIND_SOURCES_ACTIVE)[0].id };
   tasks = tasks || [];
   if (task.job != "harvest") {
     tasks.push(task);
@@ -34,13 +34,16 @@ export function complain(creep, task, tasks) {
 }
 
 export function store(creep, task, tasks) {
+  var colony_state = creep.room.memory.colony_state;
   task = task || { job: "store", resource: RESOURCE_ENERGY };
   tasks = tasks || [];
-  if (task.target) {
-    const res = creep.transfer(task.target, task.resource, task.amount);
+  var task_target = colony_state == 'just_born' ? creep.room.find(FIND_MY_SPAWNS)[0].id : task.target
+  if (task_target) {
+    var target = Game.getObjectById(task_target)
+    const res = creep.transfer(target, task.resource);
     if (res == ERR_NOT_IN_RANGE) {
       tasks.push(task); //resume after moving
-      creep.moveTo(task.target);
+      creep.moveTo(target);
     }
   } else {
     creep.drop(task.resource, task.amount);
@@ -48,6 +51,54 @@ export function store(creep, task, tasks) {
   return tasks;
 }
 
+export function load(creep, task, tasks) {
+  //oposite then store
+  var temp_target = creep.room.find(STRUCTURE_CONTAINER)[0]
+  var target_id;
+  !temp_target ? target_id = null : target_id = temp_target.id;
+
+  task = task || { job: "load", resource: RESOURCE_ENERGY, target: target_id };
+  tasks = tasks || [];
+  if (task.target) {
+    var target = Game.getObjectById(task.target)
+    const res = creep.withdraw(target, task.resource);
+    if (res == ERR_NOT_IN_RANGE) {
+      tasks.push(task); //resume after moving
+      creep.moveTo(target);
+    }
+  } else {
+    creep.say('cant load');
+    console.log(creep + ' no laod target')
+  }
+  return tasks;
+}
+
+export function build(creep, task, tasks){
+  task = task || { job: "load", target: creep.room.find(FIND_CONSTRUCTION_SITES)[0].id};
+  tasks = tasks || [];
+
+  if(task.target){
+    var target = Game.getObjectById(task.target)
+    switch(creep.build(target)){
+      case ERR_NOT_IN_RANGE:
+        tasks.push(task)
+        creep.moveTo(target);
+        break;
+      case ERR_NOT_ENOUGH_RESOURCES:
+        var stores = creep.room.find(FIND_STRUCTURES, {
+              filter: (structure) => {
+                return  [STRUCTURE_CONTAINER, STRUCTURE_STORAGE, STRUCTURE_SPAWN].indexOf(structure.structureType) !== -1 && structure.store.energy != 0;
+              }
+            });
+        var closest_store = creep.pos.findClosestByRange(stores)
+        state.push({ job: "load", resource: RESOURCE_ENERGY, target: closest_store.id });
+        break;
+    }
+  }else{
+    console.log(creep + ' no build target')
+  }
+  return tasks;
+}
 
 //Old definitions:
 /*

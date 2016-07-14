@@ -2,6 +2,12 @@ Idea about planning:
 
 Each room (initial and expansions) must proceed through planing phase.
 Planning consists of map analysis and zone designation.
+
+Zone designation requires two phases due to the scheduling nature of tasks. 
+Since it is impossible to get id of construction site on the same tick.
+Therefore the process is split to two parts: planning and post_planning.
+During post_planning the ids of objects are recorded.
+
 At this point all zones can be created, for now I thought up of such zones:
  * spawns - location(s) which contain spawn point and slots for initial
    builder (if required) and carrier(s) which ensure that spawn(s) have
@@ -18,5 +24,3 @@ At this point all zones can be created, for now I thought up of such zones:
    contain 'carriers' and a temporary 'builder'.
 
 For slots, read slot.readme.md
-
-

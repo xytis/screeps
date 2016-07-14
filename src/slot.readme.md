@@ -16,4 +16,3 @@ include 'first miner in mine', 'first carrier in spawn', 'first upgrader'.
 We may have 'priority' calculated later on.
 
 Slots have a dependency on 'roles'. Read roles.js next.
-
