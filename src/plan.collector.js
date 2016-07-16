@@ -1,4 +1,4 @@
-import fitness_for_container from 'plan.utilities'
+import {fitness_for_container} from 'plan.utilities'
 
 /*
   //something like that will be saved in memory after the exsecution

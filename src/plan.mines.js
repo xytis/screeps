@@ -1,4 +1,4 @@
-import fitness_for_container from 'plan.utilities'
+import {fitness_for_container} from 'plan.utilities'
 
 /*
   const memory = room.memory;

@@ -1,4 +1,11 @@
 import { plan_mines, post_plan_mines } from './plan.mines'
+import { plan_collector, post_plan_collector } from './plan.collector'
+
+const creep_templates = {
+  'initial': [WORK, CARRY, MOVE],
+  'minner': [WORK,WORK,CARRY,MOVE],
+  'logistics': [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+}
 
 export class City {
   static plan(room) {
@@ -10,7 +17,7 @@ export class City {
     //Scout the map for zones
 
     memory.zones.spawn = memory.zones.spawn || {
-      priority: 10,
+      priority: 20,
       type: 'spawn',
     };
     _.each(room.find(FIND_MY_SPAWNS), (s) => {
@@ -27,6 +34,7 @@ export class City {
     //Determine mine locations and slots
 
     plan_mines(room);
+    plan_collector(room);
   }
 
   static post_plan(room){
@@ -35,6 +43,9 @@ export class City {
       switch (zones[key].type) {
         case 'mine':
           post_plan_mines(room, zones[key])
+          break;
+        case 'collector':
+          post_plan_collector(room, zones[key])
           break;
         default:
           console.log('This zone has no post_plan method: ' + zones[key].type)
@@ -45,11 +56,21 @@ export class City {
 
   static spawn(room, creeps) {
     //Find first creep that we could spawn
-    if (creeps.length < 6) {
-      let spawn = room.find(FIND_MY_SPAWNS)[0];
-      spawn.createCreep([WORK, CARRY, MOVE], undefined, { role: 'miner'});
-    }else{
-      memory.colony_state = 'young';
+    switch (room.memory.colony_state) {
+      case 'just_born':
+        if (creeps.length < 6) {
+          let spawn = room.find(FIND_MY_SPAWNS)[0];
+          spawn.createCreep(creep_templates.initial, undefined, { role: 'miner'});
+        }else{
+
+        }
+        if(false){
+          room.memory.colony_state = 'young'
+        }
+        break;
+      case 'young':
+      default:
+
     }
   }
 
@@ -70,7 +91,7 @@ export class City {
 
   static pick_occupation(room, creep) {
     const memory = room.memory;
-    const zones = Object.keys(memory.zones).sort((a,b) => { memory.zones[a].priority - memory.zones[b].priority });
+    const zones = Object.keys(memory.zones).sort((a,b) => { return memory.zones[a].priority - memory.zones[b].priority });
     for(var ii =0; ii < zones.length; ii++){
       var res = City.assign_to_zone(room, creep, zones[ii])
       if(res == 0){

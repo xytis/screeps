@@ -14,7 +14,6 @@ export function run(creep) {
 
   const state = creep.memory.state || [{ job: "harvest", target: zone.target }];
 
-
   if (state.length == 0) {
     state.push({ job: "store",    resource: source.mineralType || RESOURCE_ENERGY, target: container });
     state.push({ job: "harvest",  target: zone.target})
